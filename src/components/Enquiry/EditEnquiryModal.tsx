@@ -35,7 +35,8 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
     source: enquiry.source || '',
     buyerType: enquiry.buyerType || '',
     lostOrDropReason: enquiry.lostOrDropReason || '',
-    nextFollowUpDate: enquiry.nextFollowUpDate || ''
+    nextFollowUpDate: enquiry.nextFollowUpDate || '',
+    leadStatus: enquiry.leadStatus || ''
   }));
 
   // Update formData if enquiry changes (when switching between different enquiries)
@@ -74,7 +75,8 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
       source: enquiry.source || '',
       buyerType: enquiry.buyerType || '',
       lostOrDropReason: enquiry.lostOrDropReason || '',
-      nextFollowUpDate: formatDate(enquiry.nextFollowUpDate)
+      nextFollowUpDate: formatDate(enquiry.nextFollowUpDate),
+      leadStatus: enquiry.leadStatus || ''
     });
   }, [enquiry]);
 
@@ -152,6 +154,19 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                 />
               </div>
               <div>
+                <label htmlFor="enquiryNo" className="block text-sm font-medium text-gray-700 mb-1">
+                  Enquiry No.
+                </label>
+                <input
+                  id="enquiryNo"
+                  type="text"
+                  name="enquiryNo"
+                  value={formData.enquiryNo}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Enquiry Date
                 </label>
@@ -159,19 +174,6 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                   {formData.enquiryDate}
                 </div>
               </div>
-          <div>
-            <label htmlFor="nextFollowUpDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Next Follow-up Date
-            </label>
-            <input
-              id="nextFollowUpDate"
-              type="date"
-              name="nextFollowUpDate"
-              value={formData.nextFollowUpDate || ''}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
               <div>
                 <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">
                   Mobile Number *

@@ -175,34 +175,66 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
   };
 
   const exportToCSV = () => {
-    const csvData = filteredEnquiries.map(enquiry => ({
-      'Customer Name': enquiry.customerName,
-      'Enquiry No.': enquiry.enquiryNo,
-      'Enquiry Date': new Date(enquiry.enquiryDate).toLocaleDateString(),
-      'Mobile Number': enquiry.mobileNumber,
-      'Office Phone': enquiry.officePhone || '',
-      'Email ID': enquiry.emailId || '',
-      'Address': enquiry.address || '',
-      'Pin Code': enquiry.pinCode || '',
-      'Company/Institution': enquiry.companyInstitution || '',
-      'Team Lead Name': enquiry.teamLeadName || '',
-      'DSE Name': enquiry.dseName || '',
-      'Enquiry Status': enquiry.enquiryStatus,
-      'Model Name': enquiry.modelName || '',
-      'Variant Name': enquiry.variantName || '',
-      'Colour Name': enquiry.ColourName || '',
-      'Source': enquiry.source || '',
-      'Buyer Type': enquiry.buyerType || '',
-      'Test Drive Appointment': enquiry.testDriveAppt ? 'Yes' : 'No',
-      'Test Drive Date': enquiry.testDriveDate || '',
-      'Home Visit Appointment': enquiry.homeVisitAppt ? 'Yes' : 'No',
-      'Evaluation Date': enquiry.evaluationDate || '',
-      'Lost or Drop Reason': enquiry.lostOrDropReason || '',
-      // Removed 'Created By' as per user request
-      'Feedback Remarks': enquiry.feedbackRemarks?.map(f => f.feedback).join('; ') || ''
-    }));
+    // Ensure User Name is always the first column and present in all rows
+    const csvData = filteredEnquiries.map(enquiry => {
+      const row: any = {};
+      row['User Name'] = enquiry.createdByName || '';
+      row['Customer Name'] = enquiry.customerName;
+      row['Enquiry No.'] = enquiry.enquiryNo;
+      row['Enquiry Date'] = new Date(enquiry.enquiryDate).toLocaleDateString();
+      row['Mobile Number'] = enquiry.mobileNumber;
+      row['Office Phone'] = enquiry.officePhone || '';
+      row['Email ID'] = enquiry.emailId || '';
+      row['Address'] = enquiry.address || '';
+      row['Pin Code'] = enquiry.pinCode || '';
+      row['Company/Institution'] = enquiry.companyInstitution || '';
+      row['Team Lead Name'] = enquiry.teamLeadName || '';
+      row['DSE Name'] = enquiry.dseName || '';
+      row['Enquiry Status'] = enquiry.enquiryStatus;
+      row['Model Name'] = enquiry.modelName || '';
+      row['Variant Name'] = enquiry.variantName || '';
+      row['Colour Name'] = enquiry.ColourName || '';
+      row['Source'] = enquiry.source || '';
+      row['Buyer Type'] = enquiry.buyerType || '';
+      row['Test Drive Appointment'] = enquiry.testDriveAppt ? 'Yes' : 'No';
+      row['Test Drive Date'] = enquiry.testDriveDate || '';
+      row['Home Visit Appointment'] = enquiry.homeVisitAppt ? 'Yes' : 'No';
+      row['Evaluation Date'] = enquiry.evaluationDate || '';
+      row['Lost or Drop Reason'] = enquiry.lostOrDropReason || '';
+      row['Feedback Remarks'] = enquiry.feedbackRemarks?.map(f => f.feedback).join('; ') || '';
+      return row;
+    });
 
-    const csv = Papa.unparse(csvData);
+    // Force header order for CSV
+    const csv = Papa.unparse({
+      fields: [
+        'User Name',
+        'Customer Name',
+        'Enquiry No.',
+        'Enquiry Date',
+        'Mobile Number',
+        'Office Phone',
+        'Email ID',
+        'Address',
+        'Pin Code',
+        'Company/Institution',
+        'Team Lead Name',
+        'DSE Name',
+        'Enquiry Status',
+        'Model Name',
+        'Variant Name',
+        'Colour Name',
+        'Source',
+        'Buyer Type',
+        'Test Drive Appointment',
+        'Test Drive Date',
+        'Home Visit Appointment',
+        'Evaluation Date',
+        'Lost or Drop Reason',
+        'Feedback Remarks'
+      ],
+      data: csvData
+    });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -215,35 +247,40 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
   };
 
   const exportToPDF = () => {
-    const doc = new jsPDF('l', 'mm', 'a4');
-    
-    doc.setFontSize(16);
-    doc.text('Enquiries Report', 14, 15);
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
-    doc.text(`Total Records: ${filteredEnquiries.length}`, 14, 30);
+    try {
+      const doc = new jsPDF('l', 'mm', 'a4');
+      doc.setFontSize(16);
+      doc.text('Enquiries Report', 14, 15);
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
+      doc.text(`Total Records: ${filteredEnquiries.length}`, 14, 30);
 
-    const tableData = filteredEnquiries.map(enquiry => [
-      enquiry.customerName,
-      enquiry.enquiryNo,
-      new Date(enquiry.enquiryDate).toLocaleDateString(),
-      enquiry.mobileNumber,
-      enquiry.emailId || '',
-      enquiry.enquiryStatus,
-      enquiry.modelName || '',
-      enquiry.source || ''
-    ]);
+      const tableData = filteredEnquiries.map(enquiry => [
+        enquiry.createdByName || '',
+        enquiry.customerName,
+        enquiry.enquiryNo,
+        new Date(enquiry.enquiryDate).toLocaleDateString(),
+        enquiry.mobileNumber,
+        enquiry.emailId || '',
+        enquiry.enquiryStatus,
+        enquiry.modelName || '',
+        enquiry.source || ''
+      ]);
 
-    doc.autoTable({
-      head: [['Customer Name', 'Enquiry No.', 'Date', 'Mobile', 'Email', 'Status', 'Model', 'Source']],
-      body: tableData,
-      startY: 35,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [59, 130, 246] },
-      alternateRowStyles: { fillColor: [248, 250, 252] }
-    });
+      doc.autoTable({
+        head: [['User Name', 'Customer Name', 'Enquiry No.', 'Date', 'Mobile', 'Email', 'Status', 'Model', 'Source']],
+        body: tableData,
+        startY: 35,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [59, 130, 246] },
+        alternateRowStyles: { fillColor: [248, 250, 252] }
+      });
 
-    doc.save(`enquiries_${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`enquiries_${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (err) {
+      alert('Failed to generate PDF. Please ensure jsPDF and jspdf-autotable are installed and try again.');
+      console.error('PDF export error:', err);
+    }
   };
 
   const getStatusColor = (status: string) => {
