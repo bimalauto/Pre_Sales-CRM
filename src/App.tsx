@@ -10,7 +10,48 @@ import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 // ...existing code...
 
 const AppContent: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const { showMessage } = useNotification();
+  const [hasWelcomed, setHasWelcomed] = useState(false);
+  // Auto-logout after 30 seconds of inactivity
+  React.useEffect(() => {
+    if (!currentUser) return;
+    let timer: NodeJS.Timeout;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        logout();
+        window.location.reload(); // Optional: force UI update after logout
+      }, 30000); // 30 seconds
+    };
+    // Listen for user activity
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('mousedown', resetTimer);
+    window.addEventListener('touchstart', resetTimer);
+    resetTimer();
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('mousedown', resetTimer);
+      window.removeEventListener('touchstart', resetTimer);
+    };
+  }, [currentUser, logout]);
+
+  // Show welcome message on login, then redirect after a short delay
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  React.useEffect(() => {
+    if (currentUser && !hasWelcomed) {
+      showMessage(`Welcome, ${currentUser.displayName || 'User'}! Redirecting to Pre-Sales Dashboard...`, 'success');
+      setHasWelcomed(true);
+      setTimeout(() => setShouldRedirect(true), 1500); // 1.5 seconds
+    }
+    if (!currentUser && hasWelcomed) {
+      setHasWelcomed(false);
+      setShouldRedirect(false);
+    }
+  }, [currentUser, hasWelcomed, showMessage]);
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -38,7 +79,7 @@ const AppContent: React.FC = () => {
     setIsLogin(true);
   };
 
-  if (currentUser) {
+  if (shouldRedirect && currentUser) {
     return <Dashboard />;
   }
 

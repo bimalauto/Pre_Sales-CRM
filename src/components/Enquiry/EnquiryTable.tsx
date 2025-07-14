@@ -175,10 +175,10 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
   };
 
   const exportToCSV = () => {
-    // Ensure User Name is always the first column and present in all rows
+    // Ensure User Name is always the first column and present in all rows, fallback to email or N/A
     const csvData = filteredEnquiries.map(enquiry => {
       const row: any = {};
-      row['User Name'] = enquiry.createdByName || '';
+      row['User Name'] = enquiry.createdByName || enquiry.createdByEmail || 'N/A';
       row['Customer Name'] = enquiry.customerName;
       row['Enquiry No.'] = enquiry.enquiryNo;
       row['Enquiry Date'] = new Date(enquiry.enquiryDate).toLocaleDateString();
@@ -255,20 +255,62 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 25);
       doc.text(`Total Records: ${filteredEnquiries.length}`, 14, 30);
 
+      // Match columns to CSV export, always include Username as first column
+      const tableHead = [
+        'User Name',
+        'Customer Name',
+        'Enquiry No.',
+        'Enquiry Date',
+        'Mobile Number',
+        'Office Phone',
+        'Email ID',
+        'Address',
+        'Pin Code',
+        'Company/Institution',
+        'Team Lead Name',
+        'DSE Name',
+        'Enquiry Status',
+        'Model Name',
+        'Variant Name',
+        'Colour Name',
+        'Source',
+        'Buyer Type',
+        'Test Drive Appointment',
+        'Test Drive Date',
+        'Home Visit Appointment',
+        'Evaluation Date',
+        'Lost or Drop Reason',
+        'Feedback Remarks'
+      ];
       const tableData = filteredEnquiries.map(enquiry => [
-        enquiry.createdByName || '',
+        enquiry.createdByName || enquiry.createdByEmail || 'N/A',
         enquiry.customerName,
         enquiry.enquiryNo,
         new Date(enquiry.enquiryDate).toLocaleDateString(),
         enquiry.mobileNumber,
+        enquiry.officePhone || '',
         enquiry.emailId || '',
+        enquiry.address || '',
+        enquiry.pinCode || '',
+        enquiry.companyInstitution || '',
+        enquiry.teamLeadName || '',
+        enquiry.dseName || '',
         enquiry.enquiryStatus,
         enquiry.modelName || '',
-        enquiry.source || ''
+        enquiry.variantName || '',
+        enquiry.ColourName || '',
+        enquiry.source || '',
+        enquiry.buyerType || '',
+        enquiry.testDriveAppt ? 'Yes' : 'No',
+        enquiry.testDriveDate || '',
+        enquiry.homeVisitAppt ? 'Yes' : 'No',
+        enquiry.evaluationDate || '',
+        enquiry.lostOrDropReason || '',
+        enquiry.feedbackRemarks?.map(f => f.feedback).join('; ') || ''
       ]);
 
       doc.autoTable({
-        head: [['User Name', 'Customer Name', 'Enquiry No.', 'Date', 'Mobile', 'Email', 'Status', 'Model', 'Source']],
+        head: [tableHead],
         body: tableData,
         startY: 35,
         styles: { fontSize: 8 },

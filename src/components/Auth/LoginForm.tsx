@@ -25,10 +25,37 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleForm, onForgotPassword })
       setError('');
       setLoading(true);
       await login(email, password);
-      showMessage(`Welcome, ${email}!`, 'success');
-    } catch (error) {
-      setError('Failed to sign in. Please check your credentials.');
-      showMessage(error.message || 'Failed to login', 'error');
+      // Wait a tick for AuthContext to update currentUser
+      setTimeout(() => {
+        // Get displayName from AuthContext if possible
+        const authContext = require('../../contexts/AuthContext');
+        let displayName = '';
+        try {
+          // Try to get displayName from AuthContext
+          const { useAuth } = authContext;
+          const { currentUser } = useAuth();
+          displayName = currentUser?.displayName || '';
+        } catch {}
+        // Fallback to email prefix if displayName is missing
+        if (!displayName) {
+          displayName = email.split('@')[0];
+        }
+        showMessage(`Welcome, ${displayName}! Redirecting to Pre-Sales Dashboard...`, 'success');
+      }, 100);
+    } catch (error: any) {
+      // Check for Firebase auth/invalid-credential and similar errors
+      let userMessage = 'Failed to sign in. Please check and re-enter your correct password!';
+      if (error && error.code) {
+        if (
+          error.code === 'auth/invalid-credential' ||
+          error.code === 'auth/wrong-password' ||
+          error.code === 'auth/user-not-found'
+        ) {
+          userMessage = 'Please check and re-enter your correct password!';
+        }
+      }
+      setError(userMessage);
+      showMessage(userMessage, 'error');
     }
     setLoading(false);
   };
