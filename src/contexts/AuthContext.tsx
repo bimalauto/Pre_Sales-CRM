@@ -4,7 +4,9 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  setPersistence,
+  browserSessionPersistence
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -25,6 +27,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
+    // Set session persistence so user is logged out when browser is closed
+    await setPersistence(auth, browserSessionPersistence);
     await signInWithEmailAndPassword(auth, email, password);
   };
 

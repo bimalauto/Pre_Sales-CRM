@@ -29,6 +29,7 @@ export interface Enquiry {
   ColourName: string;
   source: string;
   buyerType: string;
+  leadStatus?: string;
   lostOrDropReason: string;
   nextFollowUpDate: string;
   feedbackRemarks: FeedbackEntry[];

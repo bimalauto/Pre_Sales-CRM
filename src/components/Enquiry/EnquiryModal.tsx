@@ -235,6 +235,10 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate 
                 <p className="text-xs text-blue-700 font-semibold uppercase tracking-wide">Buyer Type</p>
                 <p className="font-semibold text-blue-900">{enquiry.buyerType || <span className='italic text-gray-400'>N/A</span>}</p>
               </div>
+              <div>
+                <p className="text-xs text-blue-700 font-semibold uppercase tracking-wide">Lead Status</p>
+                <p className="font-semibold text-blue-900">{enquiry.leadStatus || <span className='italic text-gray-400'>N/A</span>}</p>
+              </div>
             </div>
           </div>
 
@@ -259,7 +263,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate 
           )}
 
           {/* Appointments */}
-          {(enquiry.testDriveAppt || enquiry.homeVisitAppt) && (
+          {(enquiry.testDriveAppt || enquiry.homeVisitAppt || enquiry.nextFollowUpDate) && (
             <div>
               <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center">
                 <Clock className="w-5 h-5 mr-2 text-blue-500" />
@@ -286,6 +290,15 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate 
                         - {new Date(enquiry.evaluationDate).toLocaleDateString()}
                       </span>
                     )}
+                  </div>
+                )}
+                {enquiry.nextFollowUpDate && (
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="font-semibold text-blue-900">Next Follow-up Date</span>
+                    <span className="text-sm text-blue-700">
+                      - {new Date(enquiry.nextFollowUpDate).toLocaleDateString()}
+                    </span>
                   </div>
                 )}
               </div>

@@ -11,10 +11,15 @@ import UserReportDashboard from '../Reports/UserReportDashboard';
 const DashboardView: React.FC<{ showReports?: boolean; showUserReportDashboard?: boolean }> = ({ showReports, showUserReportDashboard }) => {
   const { currentUser } = useAuth();
   const [stats, setStats] = useState({
-    totalEnquiries: 0,
-    activeEnquiries: 0,
-    completedEnquiries: 0,
-    pendingEnquiries: 0
+    totalLeads: 0,
+    totalLeadsGenerated: 0,
+    totalConnected: 0,
+    notConnected: 0,
+    callBack: 0,
+    totalBooking: 0,
+    totalRetail: 0,
+    todayLeads: 0,
+    mtdLeads: 0,
   });
   const [recentEnquiries, setRecentEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,23 +64,37 @@ const DashboardView: React.FC<{ showReports?: boolean; showUserReportDashboard?:
         });
       }
 
-      // Calculate stats
-      const totalEnquiries = enquiries.length;
-      const activeEnquiries = enquiries.filter(e => 
-        ['Active', 'Follow-up', 'In Progress'].includes(e.enquiryStatus)
-      ).length;
-      const completedEnquiries = enquiries.filter(e => 
-        ['Closed', 'Converted'].includes(e.enquiryStatus)
-      ).length;
-      const pendingEnquiries = enquiries.filter(e => 
-        ['New', 'Pending'].includes(e.enquiryStatus)
-      ).length;
+      // Calculate metrics
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      const totalLeads = enquiries.length;
+      const totalLeadsGenerated = enquiries.filter(e => e.enquiryStatus !== 'Lost').length;
+      const totalConnected = enquiries.filter(e => e.leadStatus === 'Call Connected').length;
+      const notConnected = enquiries.filter(e => e.leadStatus === 'Call Not Connected').length;
+      const callBack = enquiries.filter(e => e.enquiryStatus === 'Call Back').length;
+      const totalBooking = enquiries.filter(e => e.enquiryStatus === 'Booking').length;
+      const totalRetail = enquiries.filter(e => e.enquiryStatus === 'Retail').length;
+      const todayLeads = enquiries.filter(e => {
+        const d = new Date(e.enquiryDate);
+        return d >= today;
+      }).length;
+      const mtdLeads = enquiries.filter(e => {
+        const d = new Date(e.enquiryDate);
+        return d >= monthStart && d <= today;
+      }).length;
 
       setStats({
-        totalEnquiries,
-        activeEnquiries,
-        completedEnquiries,
-        pendingEnquiries
+        totalLeads,
+        totalLeadsGenerated,
+        totalConnected,
+        notConnected,
+        callBack,
+        totalBooking,
+        totalRetail,
+        todayLeads,
+        mtdLeads,
       });
 
       // Get recent enquiries (last 5)
@@ -97,34 +116,17 @@ const DashboardView: React.FC<{ showReports?: boolean; showUserReportDashboard?:
 
   return (
     <div className="space-y-8">
-      {/* Stats Grid */}
+      {/* CRE Dashboard Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Enquiries"
-          value={stats.totalEnquiries}
-          icon={FileText}
-          color="bg-blue-500"
-        />
-        <StatCard
-          title="Active Enquiries"
-          value={stats.activeEnquiries}
-          icon={Clock}
-          color="bg-orange-500"
-        />
-        <StatCard
-          title="Completed"
-          value={stats.completedEnquiries}
-          icon={CheckCircle}
-          color="bg-green-500"
-        >
-          <span className="block text-xs text-gray-500 mt-1">(Closed or Converted enquiries)</span>
-        </StatCard>
-        <StatCard
-          title="Pending"
-          value={stats.pendingEnquiries}
-          icon={Users}
-          color="bg-purple-500"
-        />
+        <StatCard title="Total Leads" value={stats.totalLeads} icon={FileText} color="bg-blue-500" />
+        <StatCard title="Total Leads Generated" value={stats.totalLeadsGenerated} icon={FileText} color="bg-blue-400" />
+        <StatCard title="Total Connected" value={stats.totalConnected} icon={CheckCircle} color="bg-green-500" />
+        <StatCard title="Not Connected" value={stats.notConnected} icon={Clock} color="bg-red-500" />
+        <StatCard title="Call Back" value={stats.callBack} icon={Clock} color="bg-yellow-500" />
+        <StatCard title="Total Booking" value={stats.totalBooking} icon={CheckCircle} color="bg-indigo-500" />
+        <StatCard title="Total Retail" value={stats.totalRetail} icon={CheckCircle} color="bg-purple-500" />
+        <StatCard title="Today's Summary" value={stats.todayLeads} icon={FileText} color="bg-pink-500" />
+        <StatCard title="MTD Summary" value={stats.mtdLeads} icon={FileText} color="bg-teal-500" />
       </div>
 
       {/* Reports/Charts Section */}

@@ -292,8 +292,9 @@ const EnquiryForm: React.FC = () => {
                   type="date"
                   name="enquiryDate"
                   value={formData.enquiryDate}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  readOnly
+                  tabIndex={-1}
+                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-700 cursor-not-allowed focus:ring-0 focus:border-gray-200"
                 />
               </div>
               
@@ -446,6 +447,20 @@ const EnquiryForm: React.FC = () => {
                   <option value="First Time">First Time</option>
                   <option value="Replacement">Replacement</option>
                   <option value="Additional">Additional</option>
+                </select>
+              </div>
+              {/* Lead Status Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lead Status</label>
+                <select
+                  name="leadStatus"
+                  value={formData.leadStatus || ''}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Lead Status</option>
+                  <option value="Call Connected">Call Connected</option>
+                  <option value="Call Not Connected">Call Not Connected</option>
                 </select>
               </div>
             </div>

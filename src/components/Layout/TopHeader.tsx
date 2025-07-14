@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogOut, Bell, Search } from 'lucide-react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface TopHeaderProps {
@@ -9,6 +11,35 @@ interface TopHeaderProps {
 
 const TopHeader: React.FC<TopHeaderProps> = ({ title, subtitle }) => {
   const { currentUser, logout } = useAuth();
+  const [pendingFollowUps, setPendingFollowUps] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchPendingFollowUps = async () => {
+      if (!currentUser) return;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      try {
+        const enquiriesRef = collection(db, 'enquiries');
+        const q = query(
+          enquiriesRef,
+          where('createdBy', '==', currentUser.uid),
+          where('nextFollowUpDate', '!=', ''),
+        );
+        const snapshot = await getDocs(q);
+        const pending = snapshot.docs.filter(docSnap => {
+          const data = docSnap.data();
+          if (!data.nextFollowUpDate) return false;
+          const followUpDate = new Date(data.nextFollowUpDate);
+          followUpDate.setHours(0, 0, 0, 0);
+          return followUpDate <= today;
+        });
+        setPendingFollowUps(pending.length);
+      } catch (err) {
+        setPendingFollowUps(0);
+      }
+    };
+    fetchPendingFollowUps();
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -43,9 +74,16 @@ const TopHeader: React.FC<TopHeaderProps> = ({ title, subtitle }) => {
             </div>
 
             {/* Notifications */}
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <Bell className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <Bell className="w-5 h-5" />
+                {pendingFollowUps > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-bold">
+                    {pendingFollowUps}
+                  </span>
+                )}
+              </button>
+            </div>
 
             {/* User Menu */}
             <div className="flex items-center space-x-3">

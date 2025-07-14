@@ -152,31 +152,13 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                 />
               </div>
               <div>
-                <label htmlFor="enquiryNo" className="block text-sm font-medium text-gray-700 mb-1">
-                  Enquiry No.
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Enquiry Date
                 </label>
-                <input
-                  id="enquiryNo"
-                  type="text"
-                  name="enquiryNo"
-                  value={formData.enquiryNo}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-700">
+                  {formData.enquiryDate}
+                </div>
               </div>
-          <div>
-            <label htmlFor="enquiryDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Enquiry Date
-            </label>
-            <input
-              id="enquiryDate"
-              type="date"
-              name="enquiryDate"
-              value={formData.enquiryDate}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
           <div>
             <label htmlFor="nextFollowUpDate" className="block text-sm font-medium text-gray-700 mb-1">
               Next Follow-up Date
@@ -450,14 +432,29 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                   <option value="Additional">Additional Buyer</option>
                 </select>
               </div>
+              {/* Lead Status Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lead Status</label>
+                <select
+                  name="leadStatus"
+                  value={formData.leadStatus || ''}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Lead Status</option>
+                  <option value="Call Connected">Call Connected</option>
+                  <option value="Call Not Connected">Call Not Connected</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Appointments */}
           <div>
             <h4 className="text-md font-medium text-gray-900 mb-4">Appointments & Visits</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap gap-6 items-center">
+              {/* Test Drive Appointment */}
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="testDriveAppt"
@@ -466,7 +463,7 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                   onChange={handleChange}
                   className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="testDriveAppt" className="text-sm text-gray-700 flex-grow">
+                <label htmlFor="testDriveAppt" className="text-sm text-gray-700">
                   Test Drive Appointment
                 </label>
                 {formData.testDriveAppt && (
@@ -475,12 +472,12 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                     name="testDriveDate"
                     value={formData.testDriveDate}
                     onChange={handleChange}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 min-w-[160px]"
                   />
                 )}
               </div>
-              
-              <div className="flex flex-row items-center flex-wrap gap-4 w-full">
+              {/* Home Visit Appointment */}
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="homeVisitAppt"
@@ -498,20 +495,39 @@ const EditEnquiryModal: React.FC<EditEnquiryModalProps> = ({ enquiry, onClose, o
                     name="evaluationDate"
                     value={formData.evaluationDate}
                     onChange={handleChange}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 min-w-[160px]"
                   />
                 )}
-                <label htmlFor="nextFollowUpDate" className="text-sm text-gray-700 ml-6">
+              </div>
+              {/* Next Follow-up Date */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="nextFollowUpDateCheckbox"
+                  name="nextFollowUpDateCheckbox"
+                  checked={!!formData.nextFollowUpDate}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setFormData(prev => ({ ...prev, nextFollowUpDate: prev.nextFollowUpDate || new Date().toISOString().split('T')[0] }));
+                    } else {
+                      setFormData(prev => ({ ...prev, nextFollowUpDate: '' }));
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="nextFollowUpDateCheckbox" className="text-sm text-gray-700">
                   Next Follow-up Date
                 </label>
-                <input
-                  id="nextFollowUpDate"
-                  type="date"
-                  name="nextFollowUpDate"
-                  value={formData.nextFollowUpDate || ''}
-                  onChange={handleChange}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 min-w-[160px]"
-                />
+                {formData.nextFollowUpDate && (
+                  <input
+                    id="nextFollowUpDate"
+                    type="date"
+                    name="nextFollowUpDate"
+                    value={formData.nextFollowUpDate}
+                    onChange={handleChange}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 min-w-[160px]"
+                  />
+                )}
               </div>
             </div>
           </div>
