@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import EditEnquiryModal from './EditEnquiryModal';
 import { Phone, Mail, X, Calendar, MapPin, Building, User, Car, Clock, CheckCircle, Plus, Edit, MessageCircle } from 'lucide-react';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Enquiry, FeedbackEntry } from '../../types';
+
+import { useAuth } from '../../contexts/AuthContext';
 
 interface EnquiryModalProps {
   enquiry: Enquiry;
@@ -12,6 +14,24 @@ interface EnquiryModalProps {
 }
 
 const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate }) => {
+  const { currentUser } = useAuth();
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+      await deleteDoc(doc(db, 'enquiries', enquiry.id!));
+      onUpdate();
+      onClose();
+    } catch (error) {
+      alert('Failed to delete enquiry.');
+      console.error('Delete error:', error);
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteConfirm(false);
+    }
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newFeedback, setNewFeedback] = useState('');
@@ -104,6 +124,44 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate 
             </p>
           </div>
           <div className="flex items-center space-x-2">
+            {/* Show delete button only for admin */}
+            {currentUser?.role === 'admin' && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 hover:bg-red-100 rounded-full transition-colors border border-red-200"
+                title="Delete Enquiry"
+                disabled={deleteLoading}
+              >
+                <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full border border-red-200">
+            <h2 className="text-xl font-bold text-red-700 mb-4">Delete Enquiry</h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to delete this enquiry? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
             <button
               onClick={() => setIsEditing(true)}
               className="p-2 hover:bg-blue-100 rounded-full transition-colors border border-blue-200"
