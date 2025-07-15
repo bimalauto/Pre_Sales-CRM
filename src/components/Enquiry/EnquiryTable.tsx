@@ -355,273 +355,98 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
   }
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen text-black">
       <div className="space-y-6 p-6 bg-blue-50">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-black">
-              {showAll ? 'All Enquiries' : 'My Enquiries'}
-            </h2>
-            <p className="text-slate-400 mt-1">
-              {showAll ? 'System-wide enquiry management' : 'Your personal enquiry dashboard'}
-            </p>
-          </div>
-          
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-2xl font-bold text-black">
+            {showAll ? 'All Enquiries' : 'My Enquiries'}
+          </h2>
           {/* Export Buttons */}
-          <div className="flex items-center justify-end space-x-3">
-            <button
-              onClick={exportToCSV}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-200"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export CSV</span>
-              <span className="sm:hidden">CSV</span>
-            </button>
-            <button
-              onClick={exportToPDF}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-200"
-            >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Export PDF</span>
-              <span className="sm:hidden">PDF</span>
-            </button>
-          </div>
+          {/* Place export buttons here if needed */}
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 bg-blue-50">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search enquiries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full bg-white border border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-black placeholder-slate-400"
-            />
-          </div>
-          
-          <div className="relative sm:w-48">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-3 w-full bg-white border border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 appearance-none text-black"
-            >
-              <option value="all">All Status</option>
-              <option value="New">New</option>
-              <option value="Active">Active</option>
-              <option value="Follow-up">Follow-up</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Closed">Closed</option>
-              <option value="Converted">Converted</option>
-              <option value="Lost">Lost</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Table */}
+        {/* Enquiries Grid */}
         {filteredEnquiries.length === 0 ? (
-          <div className="text-center py-16 bg-blue-50 rounded-lg border border-blue-100">
-            <div className="text-slate-400 mb-4">
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
               <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-slate-300 text-lg">No enquiries found</p>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-gray-500 text-lg">No enquiries found</p>
+            <p className="text-gray-400 text-sm mt-1">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Try adjusting your search or filters' 
                 : 'Create your first enquiry to get started'}
             </p>
           </div>
         ) : (
-          <div className="bg-blue-50 shadow-sm rounded-lg border border-blue-100">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-blue-200">
-                <thead className="bg-blue-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Username
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Customer Details
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Enquiry Info
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Vehicle
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-blue-100">
-                  {filteredEnquiries.map((enquiry) => (
-                    <tr key={enquiry.id} className="hover:bg-blue-100 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-blue-700">
-                          {/* Username: displayName only, always fetch for admin */}
-                          {enquiry.createdByName === undefined
-                            ? <span className="italic text-slate-400">Loading...</span>
-                            : enquiry.createdByName}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-black">
-                            {enquiry.customerName}
-                          </div>
-                          <div className="text-sm text-blue-700">
-                            {enquiry.mobileNumber}
-                          </div>
-                          {enquiry.emailId && (
-                            <div className="text-sm text-blue-700">
-                              {enquiry.emailId}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-black">
-                            {enquiry.enquiryNo}
-                          </div>
-                          <div className="text-sm text-blue-700">
-                            {new Date(enquiry.enquiryDate).toLocaleDateString()}
-                          </div>
-                          {enquiry.source && (
-                            <div className="text-sm text-blue-700">
-                              Source: {enquiry.source}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          {enquiry.modelName && (
-                            <div className="text-sm font-medium text-black">
-                              {enquiry.modelName}
-                            </div>
-                          )}
-                          {enquiry.variantName && (
-                            <div className="text-sm text-blue-700">
-                              {enquiry.variantName}
-                            </div>
-                          )}
-                          {enquiry.buyerType && (
-                            <div className="text-sm text-blue-700">
-                              {enquiry.buyerType}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(enquiry.enquiryStatus)}`}>
-                          {enquiry.enquiryStatus}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredEnquiries.map((enquiry) => (
+              <div key={enquiry.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center mb-1">
+                        <span className="text-xs font-semibold text-blue-600 bg-blue-50 rounded px-2 py-1 mr-2">
+                          Username: {enquiry.createdByName ? enquiry.createdByName : (enquiry.createdByEmail ? enquiry.createdByEmail : 'N/A')}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedEnquiry({ ...enquiry })}
-                            className="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          {(currentUser?.role === 'admin' || !enquiry.createdBy || enquiry.createdBy === currentUser?.uid) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                console.log('Editing enquiry:', enquiry);
-                                setEditingEnquiry({ ...enquiry });
-                              }}
-                              className="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="Edit"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          )}
-                          {/* Only show delete button to admin users */}
-                          {currentUser?.role === 'admin' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                try {
-                                  handleDelete(enquiry);
-                                } catch (error) {
-                                  console.error('Error deleting enquiry:', error);
-                                  alert('Failed to delete enquiry.');
-                                }
-                              }}
-                              className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              try {
-                                handleCall(enquiry.mobileNumber);
-                              } catch (error) {
-                                console.error('Error calling:', error);
-                                alert('Failed to initiate call.');
-                              }
-                            }}
-                            className="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                            title="Call"
-                          >
-                            <Phone className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              try {
-                                handleWhatsApp(enquiry.mobileNumber);
-                              } catch (error) {
-                                console.error('Error opening WhatsApp:', error);
-                                alert('Failed to open WhatsApp.');
-                              }
-                            }}
-                            className="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                            title="WhatsApp"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </button>
-                          {enquiry.emailId && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                try {
-                                  handleEmail(enquiry.emailId);
-                                } catch (error) {
-                                  console.error('Error opening email:', error);
-                                  alert('Failed to open email client.');
-                                }
-                              }}
-                              className="text-purple-400 hover:text-purple-300 p-2 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="Email"
-                            >
-                              <Mail className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {enquiry.customerName}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {enquiry.enquiryNo}
+                      </p>
+                    </div>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(enquiry.enquiryStatus)}`}> 
+                      {enquiry.enquiryStatus}
+                    </span>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      {enquiry.mobileNumber}
+                    </div>
+                    {enquiry.emailId && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {enquiry.emailId}
+                      </div>
+                    )}
+                    <div className="flex items-center text-sm text-gray-600">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10m-12 8a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v10z" />
+                      </svg>
+                      {new Date(enquiry.enquiryDate).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 11h18M3 15h18" />
+                      </svg>
+                      {enquiry.modelName} {enquiry.variantName ? `- ${enquiry.variantName}` : ''}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div className="text-xs text-gray-500">
+                      {enquiry.feedbackRemarks?.length || 0} feedback entries
+                    </div>
+                    <button
+                      onClick={() => setSelectedEnquiry(enquiry)}
+                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>View Details</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -633,8 +458,6 @@ const EnquiryTable: React.FC<EnquiryTableProps> = ({ showAll = false }) => {
             onUpdate={fetchEnquiries}
           />
         )}
-        // Removed outer close button for View Details modal to avoid duplicate close icons
-
         {/* Edit Modal */}
         {editingEnquiry && (
           <EditEnquiryModal

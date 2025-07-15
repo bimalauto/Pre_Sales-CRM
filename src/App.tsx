@@ -13,18 +13,21 @@ const AppContent: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { showMessage } = useNotification();
   const [hasWelcomed, setHasWelcomed] = useState(false);
-  // Auto-logout after 30 seconds of inactivity
+  // Auto-logout after 30 seconds of inactivity (only for non-admin users)
   React.useEffect(() => {
     if (!currentUser) return;
+    if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
+      // Never auto-logout admin
+      return;
+    }
     let timer: NodeJS.Timeout;
     const resetTimer = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
         logout();
-        window.location.reload(); // Optional: force UI update after logout
-      }, 30000); // 30 seconds
+        window.location.reload();
+      }, 30000);
     };
-    // Listen for user activity
     window.addEventListener('mousemove', resetTimer);
     window.addEventListener('keydown', resetTimer);
     window.addEventListener('mousedown', resetTimer);
@@ -58,7 +61,7 @@ const AppContent: React.FC = () => {
 
   const handleGetStarted = () => {
     setShowAuth(true);
-    setIsLogin(false); // Start with registration form
+    setIsLogin(true); // Start with login form
   };
 
   const toggleAuthForm = () => {

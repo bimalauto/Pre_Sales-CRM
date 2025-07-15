@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
-} from 'recharts';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../contexts/AuthContext';
-import { Enquiry, User } from '../../types';
+import { Enquiry } from '../../types';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
+} from 'recharts';
 
-
+const FILTERS = [
+  { label: 'MTD', value: 'mtd' },
+  { label: 'Today', value: 'today' }
+];
 
 const UserReportDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -37,7 +40,6 @@ const UserReportDashboard: React.FC = () => {
           totalInvoice: userEnquiries.filter(e => e.enquiryStatus === 'Invoiced').length,
         };
       });
-
       // Add admin summary row if current user is admin
       if (currentUser && currentUser.role === 'admin') {
         stats.unshift({
@@ -51,7 +53,6 @@ const UserReportDashboard: React.FC = () => {
           totalInvoice: enquiries.filter(e => e.enquiryStatus === 'Invoiced').length,
         });
       }
-
       setUserStats(stats);
       setLoading(false);
     };
@@ -125,6 +126,11 @@ const UserReportDashboard: React.FC = () => {
   );
 };
 
-
+const Stat: React.FC<{ label: string; value: number }> = ({ label, value }) => (
+  <div className="bg-blue-50 rounded-lg p-4 flex flex-col items-center shadow-sm">
+    <span className="text-lg font-semibold text-gray-700 mb-1">{label}</span>
+    <span className="text-2xl font-bold text-blue-700">{value}</span>
+  </div>
+);
 
 export default UserReportDashboard;
