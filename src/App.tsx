@@ -13,7 +13,7 @@ const AppContent: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { showMessage } = useNotification();
   const [hasWelcomed, setHasWelcomed] = useState(false);
-  // Auto-logout after 30 seconds of inactivity (only for non-admin users)
+  // Auto-logout after 180 seconds of inactivity (only for non-admin users)
   React.useEffect(() => {
     if (!currentUser) return;
     if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
@@ -26,7 +26,7 @@ const AppContent: React.FC = () => {
       timer = setTimeout(() => {
         logout();
         window.location.reload();
-      }, 30000);
+      }, 180000);
     };
     window.addEventListener('mousemove', resetTimer);
     window.addEventListener('keydown', resetTimer);
