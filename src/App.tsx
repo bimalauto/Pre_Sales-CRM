@@ -9,25 +9,6 @@ import RegisterForm from './components/Auth/RegisterForm';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 // ...existing code...
 
-const AppContent: React.FC = () => {
-  const { currentUser, logout } = useAuth();
-  const { showMessage } = useNotification();
-  const [hasWelcomed, setHasWelcomed] = useState(false);
-  // Auto-logout after 180 seconds of inactivity (only for non-admin users)
-  React.useEffect(() => {
-    if (!currentUser) return;
-    if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
-      // Never auto-logout admin
-      return;
-    }
-    let timer: NodeJS.Timeout;
-    const resetTimer = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        logout();
-        window.location.reload();
-      }, 180000);
-    };
     window.addEventListener('mousemove', resetTimer);
     window.addEventListener('keydown', resetTimer);
     window.addEventListener('mousedown', resetTimer);
