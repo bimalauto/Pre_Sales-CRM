@@ -9,19 +9,11 @@ import RegisterForm from './components/Auth/RegisterForm';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 // ...existing code...
 
-    window.addEventListener('mousemove', resetTimer);
-    window.addEventListener('keydown', resetTimer);
-    window.addEventListener('mousedown', resetTimer);
-    window.addEventListener('touchstart', resetTimer);
-    resetTimer();
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('mousemove', resetTimer);
-      window.removeEventListener('keydown', resetTimer);
-      window.removeEventListener('mousedown', resetTimer);
-      window.removeEventListener('touchstart', resetTimer);
-    };
-  }, [currentUser, logout]);
+const AppContent: React.FC = () => {
+  const { currentUser, logout } = useAuth();
+  const { showMessage } = useNotification();
+  const [hasWelcomed, setHasWelcomed] = useState(false);
+  // ...existing code...
 
   // Show welcome message on login, then redirect after a short delay
   const [shouldRedirect, setShouldRedirect] = useState(false);
