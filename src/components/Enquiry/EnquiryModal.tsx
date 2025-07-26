@@ -137,6 +137,23 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ enquiry, onClose, onUpdate 
                 </svg>
               </button>
             )}
+            {/* Mark as Booking & Retail for both admin and user */}
+            <button
+              onClick={() => handleStatusChange('Booking')}
+              className="p-2 hover:bg-yellow-100 rounded-full transition-colors border border-yellow-200"
+              title="Mark as Booking"
+              disabled={loading || enquiry.enquiryStatus === 'Booking'}
+            >
+              <CheckCircle className="w-5 h-5 text-yellow-700" />
+            </button>
+            <button
+              onClick={() => handleStatusChange('Retail')}
+              className="p-2 hover:bg-green-100 rounded-full transition-colors border border-green-200"
+              title="Mark as Retail"
+              disabled={loading || enquiry.enquiryStatus === 'Retail'}
+            >
+              <CheckCircle className="w-5 h-5 text-green-700" />
+            </button>
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">

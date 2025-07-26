@@ -29,6 +29,9 @@ const EnquiryList: React.FC<EnquiryListProps> = ({ showAll = false }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+  // Pagination state
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     fetchEnquiries();
@@ -309,77 +312,106 @@ const EnquiryList: React.FC<EnquiryListProps> = ({ showAll = false }) => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEnquiries.map((enquiry) => (
-            <div key={enquiry.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <div className="flex items-center mb-1">
-                      <span className="text-xs font-semibold text-blue-600 bg-blue-50 rounded px-2 py-1 mr-2">
-                        Username: {userMap[enquiry.createdBy] || enquiry.createdBy}
-                      </span>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {enquiry.customerName}
-                      </h3>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredEnquiries.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((enquiry) => (
+              <div key={enquiry.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center mb-1">
+                        <span className="text-xs font-semibold text-blue-600 bg-blue-50 rounded px-2 py-1 mr-2">
+                          Username: {userMap[enquiry.createdBy] || enquiry.createdBy}
+                        </span>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {enquiry.customerName}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {enquiry.enquiryNo}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {enquiry.enquiryNo}
-                    </p>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(enquiry.enquiryStatus)}`}>
+                      {enquiry.enquiryStatus}
+                    </span>
                   </div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(enquiry.enquiryStatus)}`}>
-                    {enquiry.enquiryStatus}
-                  </span>
-                </div>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    {enquiry.mobileNumber}
-                  </div>
-                  
-                  {enquiry.emailId && (
+                  <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-600">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
-                      {enquiry.emailId}
+                      {enquiry.mobileNumber}
                     </div>
-                  )}
-                  
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {new Date(enquiry.enquiryDate).toLocaleDateString()}
-                  </div>
-                  
-                  {enquiry.modelName && (
+                    {enquiry.emailId && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {enquiry.emailId}
+                      </div>
+                    )}
                     <div className="flex items-center text-sm text-gray-600">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      {enquiry.modelName} {enquiry.variantName && `- ${enquiry.variantName}`}
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {new Date(enquiry.enquiryDate).toLocaleDateString()}
                     </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="text-xs text-gray-500">
-                    {enquiry.feedbackRemarks?.length || 0} feedback entries
+                    {enquiry.modelName && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        {enquiry.modelName} {enquiry.variantName && `- ${enquiry.variantName}`}
+                      </div>
+                    )}
                   </div>
-                  <button
-                    onClick={() => setSelectedEnquiry(enquiry)}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>View Details</span>
-                  </button>
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div className="text-xs text-gray-500">
+                      {enquiry.feedbackRemarks?.length || 0} feedback entries
+                    </div>
+                    <button
+                      onClick={() => setSelectedEnquiry(enquiry)}
+                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>View Details</span>
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+          {/* Pagination Bar */}
+          <div className="bg-[#233886] text-white flex items-center justify-between px-6 py-3 rounded-b-lg mt-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Rows per page:</span>
+              <select
+                className="bg-[#233886] border-none text-white text-sm focus:outline-none"
+                value={rowsPerPage}
+                onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }}
+              >
+                {[5, 10, 20, 50].map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
-          ))}
-        </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">{filteredEnquiries.length === 0 ? 0 : (page * rowsPerPage + 1)}-{Math.min((page + 1) * rowsPerPage, filteredEnquiries.length)} of {filteredEnquiries.length}</span>
+              <button
+                className={`rounded-full p-1 bg-white/20 text-white ${page === 0 ? 'cursor-not-allowed opacity-50' : ''}`}
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button
+                className={`rounded-full p-1 bg-white/20 text-white ${(page + 1) * rowsPerPage >= filteredEnquiries.length ? 'cursor-not-allowed opacity-50' : ''}`}
+                onClick={() => setPage(p => ((p + 1) * rowsPerPage < filteredEnquiries.length ? p + 1 : p))}
+                disabled={(page + 1) * rowsPerPage >= filteredEnquiries.length}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Enquiry Modal */}

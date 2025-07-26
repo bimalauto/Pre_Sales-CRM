@@ -92,3 +92,8 @@ git add .
 git commit -m "changes"
 git push
 
+
+# update all code to github 
+git add -A
+git commit -m "full project upload: all files committed"
+git push
